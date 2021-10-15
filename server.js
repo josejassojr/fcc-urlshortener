@@ -14,6 +14,40 @@ mongoose.connect(
   }
 );
 
+const Schema = mongoose.Schema;
+
+const shortenedURLSchema = new Schema({
+  original_url: { type: String, required: true },
+  short_url: { type: Number, required: true },
+});
+
+
+const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
+
+const createAndSaveShortenedURL = (done) => {
+  let createdShortenedURL = new shortenedURL();
+  console.log("test");
+  createdShortenedURL.original_url = "https://www.youtube.com";
+  createdShortenedURL.short_url = 1;
+  createdShortenedURL.save(function(err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
+};
+
+const createAndSaveDocument = (originalURL) => {
+  let createdShortenedURL = new shortenedURL();
+  createdShortenedURL.original_url = originalURL;
+  createdShortenedURL.short_url = 1;
+  createdShortenedURL.save(function(err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
+}
+
+
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -32,13 +66,18 @@ app.get("/api/hello", function(req, res) {
 
 var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
+
 app.post("/api/shorturl", function (req, res) {
-  dns.lookup(req.body.url, function (err, address, family) {
+  var originalURL = req.body.url;
+  dns.lookup(originalURL, function (err, address, family) {
     if (err) {
-      console.log(err)
-      return console.log("Not an appropiate address! Try Again!");
+      console.log(err);
+      console.log("ip address of " + originalURL + " is " + address);
+      res.json({ error: "Invalid Hostname" });
+      return
     }
-    console.log("ip address of " + req.body.url + " is " + address);
+    createAndSaveDocument(originalURL);
+    res.json({ original_url: originalURL, short_url: 1 });
   });
 });
 
