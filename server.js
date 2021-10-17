@@ -38,7 +38,7 @@ const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 // };
 
 const updateCount = (newCount, done) => {
-  shortenedURL.updateOne({ name: "counter" },{ count: newCount }, function(err, data) {
+  shortenedURL.updateOne({ counter: true },{ count: newCount }, function(err, data) {
       if (err) {
         console.log(err);
         done(err);
@@ -119,15 +119,12 @@ app.post("/api/shorturl", function (req, res,) {
     return res.json({ error: "Invalid URL, must start with 'https://'" });
   }
   const actualURL = new URL(originalURL);
-  dns.lookup(
-    actualURL.hostname,
-    function (err, address, family) {
-      // console.log(originalURL);
+  dns.lookup( actualURL.hostname, function (err, address, family) {
       if (err) {
         console.log(err);
         return res.json({ error: "Invalid Hostname" });
       }
-    }),
+    },
     findOneByURL(originalURL, function (err, foundShortenedURL) {
       if (err) {
         return res.json({ error: "error in finding url" });
@@ -141,22 +138,24 @@ app.post("/api/shorturl", function (req, res,) {
           if (foundCount === null) {
             return json({ error: "could not find count" });
           }
-
-          var count = foundCount.count;
-          createAndSaveShortenedURL(originalURL, count + 1, function (err, data) {
+          
+          var count = foundCount.count + 1;
+          createAndSaveShortenedURL(originalURL, count, function (err, data) {
             if (err) {
               return res.json({ error: "error in creating and saving url" });
             }
             else {
-              return res.json({ original_url: data.original_url, short_url: data.short_url });
+              res.json({ original_url: data.original_url, short_url: data.short_url });
             }
           },
-          updateCount(count + 1, function(err, data) {
-                      if (err) {
-                        res.json({ error: "error in updating count" });
-                      }
-                      console.log(data);
-                    })  
+          updateCount(count, function(err, data) {
+            if (err) {
+              console.log("error in updating count");
+            }
+            console.log("successfully updated count");
+            console.log(data);
+            return
+          })  
           );
         });
       } else {
@@ -166,7 +165,7 @@ app.post("/api/shorturl", function (req, res,) {
                 short_url: foundShortenedURL.short_url
               });
       }
-    })
+    }))
   });
 
 
