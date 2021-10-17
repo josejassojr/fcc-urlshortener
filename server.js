@@ -37,20 +37,17 @@ const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 //   });
 // };
 
-// const updateCount = (newCount, done) => {
-//   shortenedURL.updateOne(
-//     { original_url: "counter" },
-//     { short_url: newCount },
-//     function(err, data) {
-//       if (err) {
-//         console.log(err);
-//         done(err);
-//       }
-//       console.log(data);
-//       done(null, data);
-//     }
-//   );
-// };
+const updateCount = (newCount, done) => {
+  shortenedURL.updateOne({ name: "counter" },{ count: newCount }, function(err, data) {
+      if (err) {
+        console.log(err);
+        done(err);
+      }
+      console.log(data);
+      done(null, data);
+    }
+  );
+};
 
 const createAndSaveShortenedURL = (originalURL, short_url, done) => {
   let createdShortenedURL = new shortenedURL();
@@ -78,6 +75,29 @@ const findDbCount = (done) => {
   });
 };
 
+const findOneByShortURL = (shortURL, done) => {
+  console.log("looking by short-url");
+  shortenedURL.findOne({ short_url: shortURL }, function(err, foundShortenedURL) {
+    if (err) {
+      // console.log("ERROR");
+      done(err);
+    }
+    console.log(foundShortenedURL);
+    done(null, foundShortenedURL);
+  });
+};
+
+const findOneByURL = (givenURL, done) => {
+  console.log("looking by original-url");
+  shortenedURL.findOne({ original_url: givenURL }, function(err, foundShortenedURL) {
+    if (err) {
+      done(err);
+    }
+    done(null, foundShortenedURL);
+  });
+};
+
+
 // app.get("/api/count", function (req, res) {
 //   findDbCount(function (err, foundCount) {
 //     if (err) {
@@ -88,26 +108,12 @@ const findDbCount = (done) => {
 //   });
 // });
 
-const findOneByURL = (givenURL, done) => {
-  console.log("looking by original-url");
-  shortenedURL.findOne({ original_url: givenURL }, function(
-    err,
-    foundShortenedURL
-  ) {
-    if (err) {
-      done(err);
-    }
-    done(null, foundShortenedURL);
-    // return foundShortenedURL
-  });
-};
 
 var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
 app.post("/api/shorturl", function (req, res,) {
-  const originalURL =
-    req.body.url; /* gets input from frontend; should be a URL for a website  */
+  const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
     return res.json({ error: "Invalid URL, must start with 'https://'" });
@@ -144,7 +150,14 @@ app.post("/api/shorturl", function (req, res,) {
             else {
               return res.json({ original_url: data.original_url, short_url: data.short_url });
             }
-          });
+          },
+          updateCount(count + 1, function(err, data) {
+                      if (err) {
+                        res.json({ error: "error in updating count" });
+                      }
+                      console.log(data);
+                    })  
+          );
         });
       } else {
         console.log("found short url in database already");
@@ -157,95 +170,6 @@ app.post("/api/shorturl", function (req, res,) {
   });
 
 
-
-
-
- // updateCount(count + 1, function(err, data) {
-            //   if (err) {
-            //     res.json({ error: "error in updating count" });
-            //   }
-            //   console.log(data);
-            // });
-
-
-
-
-      // if (foundShortenedURL === null) {
-        // console.log("creating and saving new shortened_url");
-        // findDbCount(function(err, foundCount) {
-        //   if (err) {
-        //     return res.json({ error: "error in finding count" });
-        //   }
-        //   var count = foundCount.count;
-        //   createAndSaveShortenedURL(originalURL, count + 1, function(
-        //     err,
-        //     data
-        //   ) {
-        //     if (err) {
-        //       res.json({ error: "error in creating and saving url" });
-        //     }
-        //     updateCount(count + 1, function(err, data) {
-        //       if (err) {
-        //         res.json({ error: "error in updating count" });
-        //       }
-        //       console.log(data);
-        //     });
-        //     done(null, data);
-        //   });
-      // } else {
-
-      // } 
-
-
-
-
-
-  
-
-
-      // findOneByURL(originalURL, function(err, foundShortenedURL) {
-      //   if (err) {
-      //     return res.json({ error: "error in finding url" });
-      //   }
-      //   if (foundShortenedURL === null) {
-      //     console.log("creating and saving new shortened_url");
-      //     createAndSaveShortenedURL(originalURL, count + 1, function(
-      //       err,
-      //       data
-      //     ) {
-      //       if (err) {
-      //         res.json({ error: "error in creating and saving url" });
-      //       }
-      //       updateCount(count + 1, function(err, data) {
-      //         if (err) {
-      //           res.json({ error: "error in updating count" });
-      //         }
-      //         console.log(data);
-      //       });
-      //       done(null, data);
-      //     });
-      //   }
-      //   console.log("hello");
-      //   res.json({
-      //     original_url: originalURL,
-      //     short_url: foundShortenedURL.short_url
-      //   });
-      // });
-//     })
-//   );
-// });
-
-const findOneByShortURL = (shortURL, done) => {
-  console.log("looking by short-url");
-  shortenedURL.findOne({ short_url: shortURL }, function(err, foundShortenedURL) {
-    if (err) {
-      // console.log("ERROR");
-      done(err);
-    }
-    console.log(foundShortenedURL);
-    done(null, foundShortenedURL);
-  });
-};
 
 app.get("/api/shorturl/:short_url", function(req, res) {
   var short_url = req.params.short_url;
