@@ -19,10 +19,36 @@
           <fieldset>
             <legend>URL Shortener</legend>
             <label for="url_input">URL:</label>
-            <input id="url_input" type="text" name="url" placeholder="https://www.freecodecamp.org/" />
+            <input
+              id="url_input"
+              type="text"
+              name="url"
+              placeholder="https://www.freecodecamp.org/"
+            />
             <input type="submit" value="POST URL" />
           </fieldset>
         </form>
+
+        <input type="number" id="short-url-input" value=""></input><button onclick="callAPI()">Submit</button>
+        <script>
+          var apiLink;
+          function callAPI() {
+            var numberInput = document.getElementById("short-url-input");
+            apiLink = numberInput.value;
+            numberInput.value = "";
+            window.location.href = '/api/shorturl/' + apiLink;
+          }
+        </script>
+
+
+
+
+        <!-- <form action="/api/shorturl" method="get">
+          <label for="short-url-input">Short URL</label>
+          <input type="number" id="short-url-input" name="shortUrl"/>
+          <input type="submit" value="GET SHORT URL" />
+        </form> -->
+
       </section>
     </main>
     <footer>

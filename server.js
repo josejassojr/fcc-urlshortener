@@ -79,11 +79,13 @@ const findOneByShortURL = (shortURL, done) => {
   console.log("looking by short-url");
   shortenedURL.findOne({ short_url: shortURL }, function(err, foundShortenedURL) {
     if (err) {
-      // console.log("ERROR");
+      console.log("ERROR");
       done(err);
+    } 
+    else {
+      console.log(foundShortenedURL);
+      done(null, foundShortenedURL);
     }
-    console.log(foundShortenedURL);
-    done(null, foundShortenedURL);
   });
 };
 
@@ -169,21 +171,22 @@ app.post("/api/shorturl", function (req, res,) {
   });
 
 
-
 app.get("/api/shorturl/:short_url", function(req, res) {
   var short_url = req.params.short_url;
   findOneByShortURL(Number(short_url), function(err, foundURL) {
     if (err) {
-      res.send("ERROR");
+      res.json({ error: "Wrong format" });
       return;
     }
-    if (foundURL === null) {
+    else if (foundURL === null) {
       res.json({ error: "No short URL found for the given input" });
       return;
     }
-    var original_url = foundURL.original_url;
-    res.redirect(original_url);
-    return;
+    else {
+      var original_url = foundURL.original_url;
+      res.redirect(original_url);
+      return;
+    }
   });
 });
 
