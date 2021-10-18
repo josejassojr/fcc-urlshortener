@@ -95,7 +95,7 @@ app.post("/api/shorturl", function (req, res,) {
   const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
-    return res.json({ error: "Invalid URL" });
+    return res.json({ error: "Invalid url" });
   }
   const actualURL = new URL(originalURL);
   dns.lookup( actualURL.hostname, function (err, address, family) {
