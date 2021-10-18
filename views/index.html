@@ -1,36 +1,35 @@
 <!DOCTYPE html>
 
 <html>
+
   <head>
-    <title>URL Shortener Microservice | freeCodeCamp.org</title>
-    <link
-      rel="icon"
-      type="image/png"
-      href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png"
-    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap" rel="stylesheet">
+    <title>URL Shortener Microservice</title>
+    <link rel="icon" type="image/png" href="https://cdn.freecodecamp.org/universal/favicons/favicon-16x16.png" />
     <link href="/public/style.css" rel="stylesheet" type="text/css" />
   </head>
 
   <body>
     <h1>URL Shortener Microservice</h1>
-    <main>
-      <section>
-        <form action="api/shorturl" method="POST">
+        <form action="api/shorturl" method="POST" id="url-input-form">
           <fieldset>
             <legend>URL Shortener</legend>
-            <label for="url_input">URL:</label>
-            <input
-              id="url_input"
-              type="text"
-              name="url"
-              placeholder="https://www.freecodecamp.org/"
-            />
-            <input type="submit" value="POST URL" />
+            <p class="input-explain">Input a valid URL starting with 'http://' or 'https://'. </p>
+            <p class="input-explain">If URL is not in system, then a new short url will be assigned to it. Otherwise, saved short url for the given URL will be displayed.</p>
+            <p class="input-explain">Input Number in Right field to go to URL associated with submitted Number as short url.</p>
+            <label for="url_input" id="url-input-label">URL:</label>
+            <input id="url_input" type="text" name="url" placeholder="https://www.freecodecamp.org/" />
+            <input type="submit" value="POST URL" id="submit-url" class="submit-buttons"/>
+            <label for="short-url-input" id="short-url-input-label">Short URL:</label>
+            <input type="number" id="short-url-input" value="" name="shortURL"></input><button onclick="callAPI()" id="go-button" class="submit-buttons">GO</button>
           </fieldset>
         </form>
 
-        <input type="number" id="short-url-input" value=""></input><button onclick="callAPI()">Submit</button>
-        <script>
+        <!-- <input type="number" id="short-url-input" value=""></input><button onclick="callAPI()" id="go-button" class="submit-buttons">GO</button> -->
+        <script id="go-to-shorturl">
           var apiLink;
           function callAPI() {
             var numberInput = document.getElementById("short-url-input");
@@ -40,19 +39,49 @@
           }
         </script>
 
+        <h2>Saved URLs</h2>
+        <table id="url-table">
+          <tr>
+            <th>Original URL</th>
+            <th>Short URL</th>
+          </tr>
+        </table>
+
+        <script id="populate-table">
+          var practiceArr = [];
+
+          //   { original_url: "https://youtube.com/", short_url: 1 },
+          //   { original_url: "https://google.com/", short_url: 2 },
+          //   { original_url: "https://facebook.com/", short_url: 3 },
+          //   { original_url: "https://github.com/", short_url: 4 },
+          //   {original_url: "https://linkedin.com/", short_url: 5}
+          // ]
+          // createTable(practiceArr);
+
+          $.ajax({
+            method: 'GET',
+            url: '/api/all',
+            success: function (res) {
+              practiceArr = res;
+              createTable(practiceArr);
+              console.log(res);
+            }
+          })
 
 
+          function createTable(array) {
+            var table = document.getElementById("url-table");
+            for (var i = 0; i < array.length; i++) {
+              let row =
+                `<tr>
+          <td>${array[i].original_url}</td>
+          <td>${array[i].short_url}</td>
+        </tr>`
+              table.innerHTML += row;
+            }
+          }
 
-        <!-- <form action="/api/shorturl" method="get">
-          <label for="short-url-input">Short URL</label>
-          <input type="number" id="short-url-input" name="shortUrl"/>
-          <input type="submit" value="GET SHORT URL" />
-        </form> -->
-
-      </section>
-    </main>
-    <footer>
-      <p>By <a href="https://www.freecodecamp.org/">freeCodeCamp</a></p>
-    </footer>
+        </script>
   </body>
+
 </html>

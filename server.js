@@ -25,18 +25,6 @@ const shortenedURLSchema = new Schema({
 
 const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 
-// const createAndSaveShortenedURL = (done) => {
-//   let createdShortenedURL = new shortenedURL();
-//   console.log("test");
-//   createdShortenedURL.original_url = "https://www.youtube.com";
-//   createdShortenedURL.short_url = 1;
-//   createdShortenedURL.save(function(err) {
-//     if (err) {
-//       return console.error(err);
-//     }
-//   });
-// };
-
 const updateCount = (newCount, done) => {
   shortenedURL.updateOne({ counter: true },{ count: newCount }, function(err, data) {
       if (err) {
@@ -79,7 +67,6 @@ const findOneByShortURL = (shortURL, done) => {
   console.log("looking by short-url");
   shortenedURL.findOne({ short_url: shortURL }, function(err, foundShortenedURL) {
     if (err) {
-      console.log("ERROR");
       done(err);
     } 
     else {
@@ -95,27 +82,22 @@ const findOneByURL = (givenURL, done) => {
     if (err) {
       done(err);
     }
-    done(null, foundShortenedURL);
+    else {
+      done(null, foundShortenedURL);
+    }
   });
 };
-
-
-// app.get("/api/count", function (req, res) {
-//   findDbCount(function (err, foundCount) {
-//     if (err) {
-//       res.json({ error: "error in getting count" });
-//     }
-//     console.log(foundCount.count);
-//     res.json({ count: foundCount.count });
-//   });
-// });
-
 
 var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
 app.post("/api/shorturl", function (req, res,) {
   const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
+  const shortURL = req.body.shortURL;
+  console.log(shortURL);
+  if (originalURL === "") {
+    console.log("empty entry");
+  }
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
     return res.json({ error: "Invalid URL, must start with 'https://'" });
@@ -171,8 +153,10 @@ app.post("/api/shorturl", function (req, res,) {
   });
 
 
-app.get("/api/shorturl/:short_url", function(req, res) {
+app.get("/api/shorturl/:short_url", function (req, res) {
+  console.log("hi");
   var short_url = req.params.short_url;
+  console.log(short_url);
   findOneByShortURL(Number(short_url), function(err, foundURL) {
     if (err) {
       res.json({ error: "Wrong format" });
@@ -183,12 +167,30 @@ app.get("/api/shorturl/:short_url", function(req, res) {
       return;
     }
     else {
+      console.log("here");
       var original_url = foundURL.original_url;
       res.redirect(original_url);
       return;
     }
   });
 });
+
+app.get("/api/all", function (req, res) {
+  shortenedURL.find({ counter: false }, function (err, foundContent) {
+    if (err) {
+      res.json({ error: "error in finding all content" });
+      return;
+    }
+    else {
+      const dbContents = foundContent.map(x => ({
+        original_url: x.original_url,
+        short_url: x.short_url
+      }));;
+      res.send(dbContents);
+      return;
+    }
+  })
+})
 
 // Basic Configuration
 const port = process.env.PORT || 3000;

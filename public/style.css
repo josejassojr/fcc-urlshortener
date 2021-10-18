@@ -1,9 +1,12 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Montserrat', sans-serif;
   font-size: 16px;
   color: #222;
-  background-color: #fff;
-  text-align: center;
+  background-color: #74C69D;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* justify-content: c */
   line-height: 1.4em;
 }
 
@@ -11,25 +14,50 @@ main {
   padding: 0;
   margin-top: 40px;
 }
+h1 {
+  font-size: 3.5vw;
+}
 
 h3 {
   margin-top: 30px;
 }
 
-
-
-.user-stories li {
-  margin-bottom: 1em;
+.submit-buttons {
+  font-weight: bold;
+  background-color: #40916C;
+  border-color: #222;
+  border-radius: 3px;
+  padding: 5px;
 }
 
-a {
-  color: #2574a9;
+.input-explain {
+  font-size: 1vw;
 }
+
+legend {
+  font-size: 2vw;
+}
+
+#url-input-form {
+  width: 65vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: auto;
+}
+fieldset {
+  text-align: center;
+  border-width: 3px;
+  border-color: #2D6A4F;
+  width: 60vw;
+  /* margin: auto; */
+}
+
 
 form {
   margin: 10px auto;
   padding: 20px;
-  max-width: 600px;
+  /* max-width: 600px; */
 }
 
 label {
@@ -43,4 +71,30 @@ input {
 input[type='text'] {
   width: 220px;
   text-align: center;
+}
+
+#short-url-input {
+  width: 40px;
+  margin-right: 4px;
+}
+#short-url-input-label {
+  margin-left: 1vw;
+}
+
+tr {
+  text-align: center;
+}
+th {
+  border: 3px solid black;
+}
+td {
+  border-left: 3px solid black;
+}
+
+
+#url-table {
+  background-color: #95D5B2;
+  border-collapse: collapse;
+  width: 50vw;
+  border: 3px solid black;
 }
