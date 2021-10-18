@@ -1,8 +1,8 @@
 body {
-  font-family: 'Montserrat', sans-serif;
+  font-family: "Montserrat", sans-serif;
   font-size: 16px;
   color: #222;
-  background-color: #74C69D;
+  background-color: #74c69d;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -10,49 +10,26 @@ body {
   line-height: 1.4em;
 }
 
-main {
-  padding: 0;
-  margin-top: 40px;
-}
 h1 {
   font-size: 3.5vw;
-}
-
-h3 {
-  margin-top: 30px;
-}
-
-.submit-buttons {
-  font-weight: bold;
-  background-color: #40916C;
-  border-color: #222;
-  border-radius: 3px;
-  padding: 5px;
 }
 
 .input-explain {
   font-size: 1vw;
 }
 
+.submit-buttons {
+  font-weight: bold;
+  background-color: #40916c;
+  border-color: #222;
+  border-radius: 3px;
+  padding: 5px;
+  color: black;
+}
+
 legend {
   font-size: 2vw;
 }
-
-#url-input-form {
-  width: 65vw;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: auto;
-}
-fieldset {
-  text-align: center;
-  border-width: 3px;
-  border-color: #2D6A4F;
-  width: 60vw;
-  /* margin: auto; */
-}
-
 
 form {
   margin: 10px auto;
@@ -65,20 +42,13 @@ label {
 }
 
 input {
+  margin: 5px;
   padding: 5px;
 }
 
-input[type='text'] {
+input[type="text"] {
   width: 220px;
   text-align: center;
-}
-
-#short-url-input {
-  width: 40px;
-  margin-right: 4px;
-}
-#short-url-input-label {
-  margin-left: 1vw;
 }
 
 tr {
@@ -91,10 +61,51 @@ td {
   border-left: 3px solid black;
 }
 
-
 #url-table {
-  background-color: #95D5B2;
+  background-color: #95d5b2;
   border-collapse: collapse;
   width: 50vw;
   border: 3px solid black;
 }
+
+fieldset {
+  text-align: center;
+  border-width: 3px;
+  border-color: #2d6a4f;
+  width: 60vw;
+  /* margin: auto; */
+}
+
+#short-url-input {
+  width: 40px;
+}
+
+#input-container {
+  /* border: 3px solid black; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-items: center;
+}
+
+#url-input-form {
+  width: 30vw;
+  /* border: 2px solid black; */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: auto;
+}
+
+#short-url-input-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 20vw;
+  height: 4vw;
+  /* border: 3px solid black; */
+}
+
+/* #short-url-input-label {
+  margin-left: 1vw;
+} */

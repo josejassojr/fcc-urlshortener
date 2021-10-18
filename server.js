@@ -93,11 +93,6 @@ app.use(func);
 
 app.post("/api/shorturl", function (req, res,) {
   const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
-  const shortURL = req.body.shortURL;
-  console.log(shortURL);
-  if (originalURL === "") {
-    console.log("empty entry");
-  }
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
     return res.json({ error: "Invalid URL, must start with 'https://'" });
@@ -153,10 +148,13 @@ app.post("/api/shorturl", function (req, res,) {
   });
 
 
+app.get("/api/shorturl/", function (req, res) {
+  res.json({ error: "Input a Number for Short URL" });
+  return;
+})
+
 app.get("/api/shorturl/:short_url", function (req, res) {
-  console.log("hi");
   var short_url = req.params.short_url;
-  console.log(short_url);
   findOneByShortURL(Number(short_url), function(err, foundURL) {
     if (err) {
       res.json({ error: "Wrong format" });
