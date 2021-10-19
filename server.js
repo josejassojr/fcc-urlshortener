@@ -94,66 +94,89 @@ const findOneByURL = (givenURL, done) => {
 var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
-app.post("/api/shorturl", function(req, res) {
-  const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
-  var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
-  if (!pattern.test(originalURL)) {
-    console.log("line 98 invalid url");
-    res.json({ error: "invalid url" });
+app.post("/api/shorturl", function (req, res) {
+  const originalURL = req.body.url;
+  console.log(req.body.url);
+  try {
+    new URL(req.body.url);
+  } catch (err) {
+    return res.json({ error: "invalid url" });
+  }
+  const actualURL = new URL(originalURL);
+  console.log(actualURL);
+  if (actualURL.protocol != 'https:' && actualURL.protocol != 'http:') {
+    return res.json({ error: "invalid url" });
   } else {
-    const actualURL = new URL(originalURL);
-    dns.lookup(actualURL.hostname, function(err, address, family) {
+    findOneByURL(originalURL, function(err, foundShortenedURL) {
       if (err) {
-        console.log(err);
-        console.log("line 105 invalid hostname");
-        res.json({ error: "Invalid Hostname" });
-      } else {
-        findOneByURL(originalURL, function(err, foundShortenedURL) {
+        console.log("line 111 error in finding url");
+        res.json({ error: "error in finding url" });
+      } else if (foundShortenedURL === null) {
+        console.log("creating and saving new shortened_url");
+        findDbCount(function(err, foundCount) {
           if (err) {
-            console.log("line 111 error in finding url");
-            res.json({ error: "error in finding url" });
-          } else if (foundShortenedURL === null) {
-            console.log("creating and saving new shortened_url");
-            findDbCount(function(err, foundCount) {
-              if (err) {
-                console.log("line 118 error in finding count");
-                res.json({ error: "error in finding count" });
-              }
-              if (foundCount === null) {
-                console.log("line 122 could not find count");
-                res.json({ error: "could not find count" });
-              }
-              var count = foundCount.count + 1;
-              createAndSaveShortenedURL(originalURL, count, function (err, data) {
-                var savedData = data
-                if (err) {
-                  console.log("line 129 error in creating and saving url");
-                  res.json({ error: "error in creating and saving url" });
-                } else {
-                  console.log("line 133 sending original url and short url");
-                  updateCount(count, function(err, data) {
-                    if (err) {
-                      console.log("error in updating count");
-                    }
-                    console.log("successfully updated count");
-                    console.log(data);
-                    res.json({ original_url: savedData.original_url, short_url: savedData.short_url});
-                  });
-                }
-              });
-            });
-          } else {
-            console.log("line 148 found short url in database already");
-            res.json({
-              original_url: originalURL,
-              short_url: foundShortenedURL.short_url
-            });
+            console.log("line 118 error in finding count");
+            res.json({ error: "error in finding count" });
           }
+          if (foundCount === null) {
+            console.log("line 122 could not find count");
+            res.json({ error: "could not find count" });
+          }
+          var count = foundCount.count + 1;
+          createAndSaveShortenedURL(originalURL, count, function (err, data) {
+            var savedData = data
+            if (err) {
+              console.log("line 129 error in creating and saving url");
+              res.json({ error: "error in creating and saving url" });
+            } else {
+              console.log("line 133 sending original url and short url");
+              updateCount(count, function(err, data) {
+                if (err) {
+                  console.log("error in updating count");
+                }
+                console.log("successfully updated count");
+                console.log(data);
+                res.json({ original_url: savedData.original_url, short_url: savedData.short_url});
+              });
+            }
+          });
+        });
+      } else {
+        console.log("line 148 found short url in database already");
+        res.json({
+          original_url: originalURL,
+          short_url: foundShortenedURL.short_url
         });
       }
     });
   }
 });
+  
+
+
+
+
+
+
+  // const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
+  // var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
+  // if (!pattern.test(originalURL)) {
+  //   console.log("line 98 invalid url");
+  //   res.json({ error: "invalid url" });
+  // // } else {
+  //   const actualURL = new URL(originalURL);
+  //   console.log(actualURL)
+  //   // dns.lookup(actualURL.hostname, function(err, address, family) {
+  //   //   if (err) {
+  //   //     console.log(err);
+  //   //     console.log("line 105 invalid hostname");
+  //   //     res.json({ error: "Invalid Hostname" });
+  //   //   } else {
+        
+  //     // }
+  //   // });
+  // }
+// });
 
 app.get("/api/shorturl/", function(req, res) {
   console.log("line 159 error: input a number for short url");
