@@ -99,36 +99,36 @@ app.post("/api/shorturl", function(req, res) {
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
     console.log("line 98 invalid url");
-    return res.json({ error: "invalid url" });
+    res.json({ error: "invalid url" });
   } else {
     const actualURL = new URL(originalURL);
     dns.lookup(actualURL.hostname, function(err, address, family) {
       if (err) {
         console.log(err);
         console.log("line 105 invalid hostname");
-        return res.json({ error: "Invalid Hostname" });
+        res.json({ error: "Invalid Hostname" });
       } else {
         findOneByURL(originalURL, function(err, foundShortenedURL) {
           if (err) {
             console.log("line 111 error in finding url");
-            return res.json({ error: "error in finding url" });
+            res.json({ error: "error in finding url" });
           } else if (foundShortenedURL === null) {
             console.log("creating and saving new shortened_url");
             findDbCount(function(err, foundCount) {
               if (err) {
                 console.log("line 118 error in finding count");
-                return res.json({ error: "error in finding count" });
+                res.json({ error: "error in finding count" });
               }
               if (foundCount === null) {
                 console.log("line 122 could not find count");
-                return json({ error: "could not find count" });
+                res.json({ error: "could not find count" });
               }
               var count = foundCount.count + 1;
               createAndSaveShortenedURL(originalURL, count, function (err, data) {
                 var savedData = data
                 if (err) {
                   console.log("line 129 error in creating and saving url");
-                  return res.json({ error: "error in creating and saving url" });
+                  res.json({ error: "error in creating and saving url" });
                 } else {
                   console.log("line 133 sending original url and short url");
                   updateCount(count, function(err, data) {
@@ -137,7 +137,7 @@ app.post("/api/shorturl", function(req, res) {
                     }
                     console.log("successfully updated count");
                     console.log(data);
-                    return res.json({ original_url: savedData.original_url, short_url: savedData.short_url});
+                    res.json({ original_url: savedData.original_url, short_url: savedData.short_url});
                   });
                 }
               });
@@ -158,7 +158,6 @@ app.post("/api/shorturl", function(req, res) {
 app.get("/api/shorturl/", function(req, res) {
   console.log("line 159 error: input a number for short url");
   res.json({ error: "Input a Number for Short URL" });
-  return;
 });
 
 app.get("/api/shorturl/:short_url", function(req, res) {
@@ -167,17 +166,14 @@ app.get("/api/shorturl/:short_url", function(req, res) {
     if (err) {
       console.log("error: wrong format");
       res.json({ error: "Wrong format" });
-      return;
     } else if (foundURL === null) {
       console.log("error: no short url found for the given input");
       res.json({ error: "No short URL found for the given input" });
-      return;
     } else {
       console.log("here");
       var original_url = foundURL.original_url;
       console.log("line 180 redirecting url");
       res.redirect(original_url);
-      return;
     }
   });
 });
@@ -187,7 +183,6 @@ app.get("/api/all", function(req, res) {
     if (err) {
       console.log(" line 190 erorr in finding all content");
       res.json({ error: "error in finding all content" });
-      return;
     } else {
       const dbContents = foundContent.map(x => ({
         original_url: x.original_url,
@@ -195,7 +190,6 @@ app.get("/api/all", function(req, res) {
       }));
       console.log("line 199 sending contents of db");
       res.send(dbContents);
-      return;
     }
   });
 });
