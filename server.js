@@ -95,7 +95,7 @@ var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
 app.post("/api/shorturl", function(req, res) {
-  const originalURL = eq.body.url; /* gets input from frontend; should be a URL for a website  */
+  const originalURL = req.body.url; /* gets input from frontend; should be a URL for a website  */
   var pattern = /^(([hH][tT][tT][pP]|[hH][tT][tT][pP][sS]):\/\/)/; // checks that url starts with http(s)://
   if (!pattern.test(originalURL)) {
     console.log("line 98 invalid url");
