@@ -26,10 +26,7 @@ const shortenedURLSchema = new Schema({
 const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 
 const updateCount = (newCount, done) => {
-  shortenedURL.updateOne({ counter: true }, { count: newCount }, function(
-    err,
-    data
-  ) {
+  shortenedURL.findOneAndUpdate({ counter: true }, { count: newCount }, function(err, data) {
     if (err) {
       console.log(err);
       done(err);
@@ -60,7 +57,6 @@ const findDbCount = done => {
       console.log("error in getting count");
       done(err);
     }
-    console.log(foundCount);
     done(null, foundCount);
   });
 };
@@ -79,10 +75,7 @@ const findOneByShortURL = (shortURL, done) => {
 
 const findOneByURL = (givenURL, done) => {
   console.log("looking by original-url");
-  shortenedURL.findOne({ original_url: givenURL }, function(
-    err,
-    foundShortenedURL
-  ) {
+  shortenedURL.findOne({ original_url: givenURL }, function(err, foundShortenedURL) {
     if (err) {
       done(err);
     } else {
@@ -95,14 +88,12 @@ var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
 app.post("/api/shorturl", function (req, res) {
-  const originalURL = req.body.url;
-  console.log(req.body.url);
   try {
     new URL(req.body.url);
   } catch (err) {
     return res.json({ error: "invalid url" });
   }
-  const actualURL = new URL(originalURL);
+  const actualURL = new URL(req.body.url);
   console.log(actualURL);
   if (actualURL.protocol != 'https:' && actualURL.protocol != 'http:') {
     return res.json({ error: "invalid url" });
@@ -129,6 +120,7 @@ app.post("/api/shorturl", function (req, res) {
               res.json({ error: "could not find count" });
             }
             var count = foundCount.count + 1;
+            console.log("new count is " + String(count));
             createAndSaveShortenedURL(actualURL.href, count, function (err, data) {
               var savedData = data
               if (err) {
@@ -141,8 +133,10 @@ app.post("/api/shorturl", function (req, res) {
                     console.log("error in updating count");
                   }
                   console.log("successfully updated count");
-                  console.log(typeof savedData.short_url);
-                  res.json({ original_url: savedData.original_url, short_url: savedData.short_url});
+                });
+                res.json({
+                  original_url: savedData.original_url,
+                  short_url: savedData.short_url
                 });
               }
             });
@@ -154,15 +148,9 @@ app.post("/api/shorturl", function (req, res) {
             short_url: foundShortenedURL.short_url
           });
         }
-      });
-        }
-
-      });
-      
-
-
-
-
+        });
+      }
+    });
   }
 });
   
@@ -192,25 +180,24 @@ app.post("/api/shorturl", function (req, res) {
   // }
 // });
 
-app.get("/api/shorturl/", function(req, res) {
+app.get("/api/shorturl?/", function(req, res) {
   console.log("line 159 error: input a number for short url");
   res.json({ error: "Input a Number for Short URL" });
 });
 
 app.get("/api/shorturl/:short_url", function (req, res) {
+  
+  console.log(req.params);
   var short_url = req.params.short_url;
   findOneByShortURL(Number(short_url), function(err, foundURL) {
     if (err) {
       console.log("error: wrong format");
-      res.json({ error: "Wrong format" });
-    } else if (foundURL === null) {
-      console.log("error: no short url found for the given input");
-      res.json({ error: "No short URL found for the given input" });
+      return res.json({ error: "Wrong format" });
     } else {
       console.log("here");
       var original_url = foundURL.original_url;
       console.log("line 180 redirecting url");
-      res.redirect(original_url);
+      return res.redirect(original_url);
     }
   });
 });
@@ -218,7 +205,7 @@ app.get("/api/shorturl/:short_url", function (req, res) {
 app.get("/api/all", function(req, res) {
   shortenedURL.find({ counter: false }, function(err, foundContent) {
     if (err) {
-      console.log(" line 190 erorr in finding all content");
+      console.log(" line 190 error in finding all content");
       res.json({ error: "error in finding all content" });
     } else {
       const dbContents = foundContent.map(x => ({
