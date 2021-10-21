@@ -25,15 +25,20 @@ const shortenedURLSchema = new Schema({
 
 const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 
-const updateCount = (newCount, done) => {
-  shortenedURL.findOneAndUpdate({ counter: true }, { count: newCount }, function(err, data) {
-    if (err) {
-      console.log(err);
-      done(err);
+function handleUpdateOne(err, updatedShortenedURL, done) {
+  if (err) {
+      console.log("error in handleUpdateOne")
+    console.log(err);
+    done(err);
     }
-    console.log(data);
-    done(null, data);
-  });
+  console.log(updatedShortenedURL);
+  done(null, updatedShortenedURL);
+}
+  
+const updateCount = (newCount, done) => {
+  shortenedURL.findOneAndUpdate({ counter: true },
+  { count: newCount },
+  handleUpdateOne)
 };
 
 const createAndSaveShortenedURL = (originalURL, short_url, done) => {
@@ -61,17 +66,17 @@ const findDbCount = done => {
   });
 };
 
-const findOneByShortURL = (shortURL, done) => {
-  console.log("looking by short-url");
-  shortenedURL.findOne({ short_url: shortURL }, function(err, foundShortenedURL) {
-    if (err) {
-      done(err);
-    } else {
-      console.log(foundShortenedURL);
-      done(null, foundShortenedURL);
-    }
-  });
-};
+function handleFindOne(err, foundShortenedURL, done) {
+  if (err) {
+    console.log("error in handleUpdateOne");
+    console.log(err);
+  } else {
+    done(null, foundShortenedURL);
+  }
+}
+
+
+
 
 const findOneByURL = (givenURL, done) => {
   console.log("looking by original-url");
@@ -87,72 +92,86 @@ const findOneByURL = (givenURL, done) => {
 var func = bodyParser.urlencoded({ extended: false });
 app.use(func);
 
-app.post("/api/shorturl", function (req, res) {
+
+function handlePostRequest(req, res) {
   try {
-    new URL(req.body.url);
+    new URL(req.body.url); // checking for error in creating URL from input
   } catch (err) {
+    console.log("error with input url");
     return res.json({ error: "invalid url" });
   }
   const actualURL = new URL(req.body.url);
-  console.log(actualURL);
+  console.log()
   if (actualURL.protocol != 'https:' && actualURL.protocol != 'http:') {
+    console.log("url does not contain 'https://'")
     return res.json({ error: "invalid url" });
   } else {
-    dns.lookup(actualURL.hostname, function (err, address, family) {
+    console.log("actual URL is");
+    console.log(actualURL);
+    dns.lookup(actualURL.hostname, handleDNSLookup);
+  }
+}
+
+app.post("/api/shorturl", handlePostRequest);
+
+
+function handleDNSLookup(err, address, family) {
+  if (err) {
+    console.log(err);
+    console.log("line 105 invalid hostname");
+    res.json({ error: "Invalid Hostname" });
+  } else {
+    findOneByURL(actualURL.href, function handleFindOneByURL(err, foundShortenedURL,) {
       if (err) {
-        console.log(err);
-        console.log("line 105 invalid hostname")
-        res.json({ error: "Invalid Hostname" });
-      } else {
-        findOneByURL(actualURL.href, function(err, foundShortenedURL) {
-        if (err) {
-          console.log("line 111 error in finding url");
-          res.json({ error: "error in finding url" });
-        } else if (foundShortenedURL === null) {
-          console.log("creating and saving new shortened_url");
-          findDbCount(function(err, foundCount) {
+        console.log("line 111 error in finding url");
+        res.json({ error: "error in finding url" });
+      } else if (foundShortenedURL === null) {
+        console.log("creating and saving new shortened_url");
+        findDbCount(function(err, foundCount) {
+          if (err) {
+            console.log("line 118 error in finding count");
+            res.json({ error: "error in finding count" });
+          }
+          if (foundCount === null) {
+            console.log("line 122 could not find count");
+            res.json({ error: "could not find count" });
+          }
+          var count = foundCount.count + 1;
+          console.log("new count is " + String(count));
+          createAndSaveShortenedURL(actualURL.href, count, function(err, data) {
+            var savedData = data;
             if (err) {
-              console.log("line 118 error in finding count");
-              res.json({ error: "error in finding count" });
+              console.log("line 129 error in creating and saving url");
+              res.json({ error: "error in creating and saving url" });
+            } else {
+              console.log("line 133 sending original url and short url");
+              updateCount(count, function(err, data) {
+                if (err) {
+                  console.log("error in updating count");
+                }
+                console.log("successfully updated count");
+              });
+              res.json({
+                original_url: savedData.original_url,
+                short_url: savedData.short_url
+              });
             }
-            if (foundCount === null) {
-              console.log("line 122 could not find count");
-              res.json({ error: "could not find count" });
-            }
-            var count = foundCount.count + 1;
-            console.log("new count is " + String(count));
-            createAndSaveShortenedURL(actualURL.href, count, function (err, data) {
-              var savedData = data
-              if (err) {
-                console.log("line 129 error in creating and saving url");
-                res.json({ error: "error in creating and saving url" });
-              } else {
-                console.log("line 133 sending original url and short url");
-                updateCount(count, function(err, data) {
-                  if (err) {
-                    console.log("error in updating count");
-                  }
-                  console.log("successfully updated count");
-                });
-                res.json({
-                  original_url: savedData.original_url,
-                  short_url: savedData.short_url
-                });
-              }
-            });
           });
-        } else {
-          console.log("line 148 found short url in database already");
-          res.json({
-            original_url: foundShortenedURL.original_url,
-            short_url: foundShortenedURL.short_url
-          });
-        }
+        });
+      } else {
+        console.log("line 148 found short url in database already");
+        res.json({
+          original_url: foundShortenedURL.original_url,
+          short_url: foundShortenedURL.short_url
         });
       }
     });
   }
-});
+}
+
+
+
+
   
 
 
@@ -185,22 +204,54 @@ app.get("/api/shorturl?/", function(req, res) {
   res.json({ error: "Input a Number for Short URL" });
 });
 
-app.get("/api/shorturl/:short_url", function (req, res) {
-  
+app.get("/api/shorturl/:short_url", handleGetShortURL);
+
+function handleGetShortURL(req, res) {
   console.log(req.params);
   var short_url = req.params.short_url;
-  findOneByShortURL(Number(short_url), function(err, foundURL) {
+  console.log("short_url is " + String(short_url));
+  findOneByShortURL(Number(short_url), function handleFoundShortURL(err, foundURL) {
+    console.log(err)
+    console.log(foundURL);
     if (err) {
       console.log("error: wrong format");
+      console.log(err);
       return res.json({ error: "Wrong format" });
     } else {
-      console.log("here");
       var original_url = foundURL.original_url;
       console.log("line 180 redirecting url");
       return res.redirect(original_url);
     }
   });
-});
+  }
+
+
+
+
+// function handleFindOneByShortURL(foundURL) {
+//   console.log("here");
+//   var original_url = foundURL.original_url;
+//   console.log("line 180 redirecting url");
+//   return res.redirect(original_url);
+// }
+
+const findOneByShortURL = (shortURL, done) => {
+  console.log("looking by short-url");
+  shortenedURL.findOne({ short_url: shortURL }, function handleFindOneByShortURL(err, foundURL) {
+    if (err) {
+      done(err);
+    } else {
+      done(null, foundURL);
+      // console.log("here");
+      // var original_url = foundURL.original_url;
+      // console.log("line 180 redirecting url");
+      // console.log(foundURL);
+      // return res.json(foundURL);
+    }
+      // return res.redirect(original_url);
+    }
+  );
+};
 
 app.get("/api/all", function(req, res) {
   shortenedURL.find({ counter: false }, function(err, foundContent) {
