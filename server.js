@@ -36,15 +36,15 @@ function handleUpdateOne(err, updatedShortenedURL, done) {
 }
   
 const updateCount = (newCount, done) => {
-  shortenedURL.findOneAndUpdate({ counter: true },{ count: newCount }, function handleUpdateOne(err, updatedShortenedURL) {
+  shortenedURL.findOneAndUpdate({ counter: true },{ count: newCount }, function handleUpdateOne(err, updatedCount) {
     if (err) {
       console.log("error in updating count")
       console.log(err);
       done(err);
     } else {
       console.log("updated count successfully");
-      console.log(updatedShortenedURL);
-      done(null, updatedShortenedURL);
+      console.log(updatedCount);
+      done(null, updatedCount);
     }
   })
 };
@@ -129,7 +129,12 @@ function handlePostRequest(req, res) {
         console.log("line 105 invalid hostname");
         res.json({ error: "Invalid Hostname" });
       } else {
-        findOneByURL(actualURL.href, function handleFoundURL(
+        originalURL =  actualURL.href
+        if (actualURL.href.slice(-1) === '/') {
+          originalURL = actualURL.href.slice(0, -1);
+        } 
+        console.log(originalURL);
+        findOneByURL(originalURL, function handleFoundURL(
           err,
           foundShortenedURL
         ) {
@@ -146,8 +151,8 @@ function handlePostRequest(req, res) {
                 res.send("No found Count")
               } else {
                 var count = foundCount.count + 1;
-                console.log("saving original url:" + String(actualURL.href) + " with short url:" + String(count));
-                createAndSaveShortenedURL(actualURL.href, count, function handleSavedShortenedURL(err, savedData) {
+                console.log("saving original url:" + originalURL + " with short url:" + String(count));
+                createAndSaveShortenedURL(originalURL, count, function handleSavedShortenedURL(err, savedData) {
                   if (err) {
                     console.log("error in saving new shortened url");
                     res.json({ error: "Error in saving new shortened url" });
@@ -158,7 +163,7 @@ function handlePostRequest(req, res) {
                       } else {
                         console.log("updated count");
                         console.log(savedCount);
-                        res.json({ original_url: actualURL.href, short_url: count });
+                        res.json({ original_url: originalURL, short_url: count });
                       }
                     })
                   }
