@@ -108,14 +108,14 @@ function handlePostRequest(req, res) {
     new URL(req.body.url); // checking for error in creating URL from input
   } catch (err) {
     console.log("error with input url");
-    return res.json({ error: "invalid url" });
+    return res.json({ error: "Invalid URL" });
   }
   const actualURL = new URL(req.body.url);
   console.log("actual URL is")
   console.log(actualURL);
   if (actualURL.protocol != 'https:' && actualURL.protocol != 'http:') {
     console.log("url does not contain 'https://'")
-    return res.json({ error: "invalid url" });
+    return res.json({ error: "Invalid URL" });
   } else {
     console.log("actual URL is");
     console.log(actualURL);
@@ -165,13 +165,6 @@ function handlePostRequest(req, res) {
                 });
               }
             });
-
-
-
-    
-
-
-            
           } else {
             console.log("line 148 found short url in database already");
             res.json({
@@ -195,52 +188,29 @@ function handlePostRequest(req, res) {
 
 
 
-// function handleDNSLookup(err, address, family) {
+
+
+
+
+// function handleCreateAndSaveShortenedURL(err, data) {
+//   var savedData = data;
 //   if (err) {
-//     console.log(err);
-//     console.log("line 105 invalid hostname");
-//     res.json({ error: "Invalid Hostname" });
+//     console.log("line 129 error in creating and saving url");
+//     res.json({ error: "error in creating and saving url" });
 //   } else {
-//     findOneByURL(actualURL.href, function handleFoundURL(err, foundShortenedURL) {
+//     console.log("line 133 sending original url and short url");
+//     updateCount(count, function(err, data) {
 //       if (err) {
-//         console.log("line 111 error in finding url");
-//         res.json({ error: "error in finding url" });
-//       } else if (foundShortenedURL === null) {
-//         console.log("creating and saving new shortened_url");
-//         findDbCount(handleFindDBCount);
-//       } else {
-//         console.log("line 148 found short url in database already");
-//         res.json({
-//           original_url: foundShortenedURL.original_url,
-//           short_url: foundShortenedURL.short_url
-//         });
+//         console.log("error in updating count");
 //       }
+//       console.log("successfully updated count");
+//     });
+//     res.json({
+//       original_url: savedData.original_url,
+//       short_url: savedData.short_url
 //     });
 //   }
 // }
-
-
-
-
-function handleCreateAndSaveShortenedURL(err, data) {
-  var savedData = data;
-  if (err) {
-    console.log("line 129 error in creating and saving url");
-    res.json({ error: "error in creating and saving url" });
-  } else {
-    console.log("line 133 sending original url and short url");
-    updateCount(count, function(err, data) {
-      if (err) {
-        console.log("error in updating count");
-      }
-      console.log("successfully updated count");
-    });
-    res.json({
-      original_url: savedData.original_url,
-      short_url: savedData.short_url
-    });
-  }
-}
 
   
 
