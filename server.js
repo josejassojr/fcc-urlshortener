@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "file.env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const dns = require("dns");
@@ -7,7 +7,7 @@ const cors = require("cors");
 const app = express();
 
 mongoose.connect(
-  "mongodb+srv://josejassojr:y0ekuPLAaPeTh8G6@cluster0.htefv.mongodb.net/urlDatabase?retryWrites=true&w=majority",
+  process.env.MONGO_URI,
   {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -221,7 +221,6 @@ app.get("/api/shorturl/:short_url", function handleGetShortURL(req, res) {
     }
   )
 });
-
 
 
 // app.get("/api/all", function(req, res) {
