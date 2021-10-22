@@ -27,26 +27,30 @@ const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 
 function handleUpdateOne(err, updatedShortenedURL, done) {
   if (err) {
-      console.log("error in handleUpdateOne")
+    console.log("error in handleUpdateOne");
     console.log(err);
     done(err);
-    }
+  }
   console.log(updatedShortenedURL);
   done(null, updatedShortenedURL);
 }
-  
+
 const updateCount = (newCount, done) => {
-  shortenedURL.findOneAndUpdate({ counter: true },{ count: newCount }, function handleUpdateOne(err, updatedCount) {
-    if (err) {
-      console.log("error in updating count")
-      console.log(err);
-      done(err);
-    } else {
-      console.log("updated count successfully");
-      console.log(updatedCount);
-      done(null, updatedCount);
+  shortenedURL.findOneAndUpdate(
+    { counter: true },
+    { count: newCount },
+    function handleUpdateOne(err, updatedCount) {
+      if (err) {
+        console.log("error in updating count");
+        console.log(err);
+        done(err);
+      } else {
+        console.log("updated count successfully");
+        console.log(updatedCount);
+        done(null, updatedCount);
+      }
     }
-  })
+  );
 };
 
 const createAndSaveShortenedURL = (originalURL, short_url, done) => {
@@ -64,7 +68,7 @@ const createAndSaveShortenedURL = (originalURL, short_url, done) => {
   });
 };
 
-const findDbCount = (done) => {
+const findDbCount = done => {
   shortenedURL.findOne({ counter: true }, function(err, foundCount) {
     if (err) {
       console.log("error in getting count");
@@ -85,7 +89,10 @@ function handleFindOne(err, foundShortenedURL, done) {
 
 const findOneByURL = (givenURL, done) => {
   console.log("looking by original-url");
-  shortenedURL.findOne({ original_url: givenURL }, function handleFindOneByURL(err, foundShortenedURL) {
+  shortenedURL.findOne({ original_url: givenURL }, function handleFindOneByURL(
+    err,
+    foundShortenedURL
+  ) {
     if (err) {
       done(err);
     } else {
@@ -99,7 +106,6 @@ app.use(func);
 
 app.post("/api/shorturl", handlePostRequest);
 
-
 function handlePostRequest(req, res) {
   try {
     new URL(req.body.url); // checking for error in creating URL from input
@@ -108,10 +114,10 @@ function handlePostRequest(req, res) {
     return res.json({ error: "Invalid URL" });
   }
   const actualURL = new URL(req.body.url);
-  console.log("actual URL is")
+  console.log("actual URL is");
   console.log(actualURL);
-  if (actualURL.protocol != 'https:' && actualURL.protocol != 'http:') {
-    console.log("url does not contain 'https://'")
+  if (actualURL.protocol != "https:" && actualURL.protocol != "http:") {
+    console.log("url does not contain 'https://'");
     return res.json({ error: "Invalid URL" });
   } else {
     console.log("actual URL is");
@@ -191,38 +197,30 @@ function handlePostRequest(req, res) {
           }
         });
       }
-    }); // make sure to add back handleDNSlookup up once done  
+    }); // make sure to add back handleDNSlookup up once done
   }
 }
-
-
-
 
 app.get("/api/shorturl?/", function(req, res) {
   console.log("error: input a number for short url");
   res.json({ error: "Input a Number for Short URL" });
 });
 
-app.get("/api/shorturl/:short_url", handleGetShortURL);
-
-function handleGetShortURL(req, res) {
+app.get("/api/shorturl/:short_url", function handleGetShortURL(req, res) {
   console.log(req.params);
   var short_url = req.params.short_url;
   console.log("short_url is " + String(short_url));
   console.log("looking by short-url");
-  console.log(typeof short_url);
-  shortenedURL.findOne({ short_url: Number(short_url) }, function handleFindOneByShortURL(err, foundURL) {
-    if (err) {
-      res.json({ error: "Wrong format" });
-    } else {
-      res.redirect(foundURL.original_url);
+  shortenedURL.findOne(
+    { short_url: Number(short_url) },
+    function handleFindOneByShortURL(err, foundURL) {
+      if (err) {
+        res.json({ error: "Wrong format" });
+      }
+      return res.redirect(foundURL.original_url);
     }
-  }
-  );
-};
-
-
-
+  )
+});
 
 
 
