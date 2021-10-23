@@ -171,9 +171,13 @@ app.get("/api/shorturl/:short_url", function handleGetShortURL(req, res) {
     { short_url: Number(short_url) },
     function handleFindOneByShortURL(err, foundURL) {
       if (err) {
-        res.json({ error: "Wrong format" });
+        return res.json({ error: "Wrong format" });
+      } else if (foundURL === null) {
+        return res.json({ error: "No original url known for that short url" });
       }
-      return res.redirect(foundURL.original_url);
+      else {
+        return res.redirect(foundURL.original_url);
+      }
     }
   );
 });
