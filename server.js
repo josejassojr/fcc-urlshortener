@@ -6,6 +6,22 @@ var bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
+// Basic Configuration
+const port = process.env.PORT || 3000;
+
+app.use(cors());
+
+app.use("/public", express.static(`${process.cwd()}/public`));
+
+app.get("/", function(req, res) {
+  res.sendFile(process.cwd() + "/views/index.html");
+});
+
+app.listen(port, function() {
+  console.log(`Listening on port ${port}`);
+});
+
+
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -196,17 +212,4 @@ app.get("/api/shorturl/:short_url", function handleGetShortURL(req, res) {
 //   });
 // });
 
-// Basic Configuration
-const port = process.env.PORT || 3000;
 
-app.use(cors());
-
-app.use("/public", express.static(`${process.cwd()}/public`));
-
-app.get("/", function(req, res) {
-  res.sendFile(process.cwd() + "/views/index.html");
-});
-
-app.listen(port, function() {
-  console.log(`Listening on port ${port}`);
-});
