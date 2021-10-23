@@ -46,7 +46,7 @@
       }
     </script>
 
-    <!-- <h2>Saved URLs</h2>
+    <h2>Saved URLs</h2>
     <table id="url-table">
       <tr>
         <th>Original URL</th>
@@ -55,16 +55,6 @@
     </table>
 
     <script id="populate-table">
-      var practiceArr = [];
-
-      //   { original_url: "https://youtube.com/", short_url: 1 },
-      //   { original_url: "https://google.com/", short_url: 2 },
-      //   { original_url: "https://facebook.com/", short_url: 3 },
-      //   { original_url: "https://github.com/", short_url: 4 },
-      //   {original_url: "https://linkedin.com/", short_url: 5}
-      // ]
-      // createTable(practiceArr);
-
       $.ajax({
         method: 'GET',
         url: '/api/all',
@@ -88,7 +78,7 @@
         }
       }
 
-    </script> -->
+    </script>
   </body>
 
 </html>

@@ -38,24 +38,6 @@ const shortenedURLSchema = new Schema({
 
 const shortenedURL = mongoose.model("Shortened_URL", shortenedURLSchema);
 
-// const updateCount = (newCount, done) => {
-//   shortenedURL.findOneAndUpdate(
-//     { counter: true },
-//     { count: newCount },
-//     function handleUpdateOne(err, updatedCount) {
-//       if (err) {
-//         console.log("error in updating count");
-//         console.log(err);
-//         done(err);
-//       } else {
-//         console.log("updated count successfully");
-//         console.log(updatedCount);
-//         done(null, updatedCount);
-//       }
-//     }
-//   );
-// };
-
 const createAndSaveShortenedURL = (originalURL, short_url, done) => {
   let createdShortenedURL = new shortenedURL();
   createdShortenedURL.original_url = originalURL;
@@ -171,7 +153,7 @@ function handlePostRequest(req, res) {
           }
         });
       }
-    }); // make sure to add back handleDNSlookup up once done
+    }); 
   }
 }
 
@@ -196,20 +178,20 @@ app.get("/api/shorturl/:short_url", function handleGetShortURL(req, res) {
   );
 });
 
-// app.get("/api/all", function(req, res) {
-//   shortenedURL.find({ counter: false }, function(err, foundContent) {
-//     if (err) {
-//       console.log(" line 190 error in finding all content");
-//       res.json({ error: "error in finding all content" });
-//     } else {
-//       const dbContents = foundContent.map(x => ({
-//         original_url: x.original_url,
-//         short_url: x.short_url
-//       }));
-//       console.log("line 199 sending contents of db");
-//       res.send(dbContents);
-//     }
-//   });
-// });
+app.get("/api/all", function(req, res) {
+  shortenedURL.find({ counter: false }, function(err, foundContent) {
+    if (err) {
+      console.log(" line 190 error in finding all content");
+      res.json({ error: "error in finding all content" });
+    } else {
+      const dbContents = foundContent.map(x => ({
+        original_url: x.original_url,
+        short_url: x.short_url
+      }));
+      console.log("line 199 sending contents of db");
+      res.send(dbContents);
+    }
+  });
+});
 
 
