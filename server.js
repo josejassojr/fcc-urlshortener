@@ -6,11 +6,11 @@ var bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
-const aws = require("aws-sdk");
+// const aws = require("aws-sdk");
 
-let db_uri = new aws.S3({
-  mongo_uri: process.env.MONGO_URI,
-});
+// let db_uri = new aws.S3({
+//   mongo_uri: process.env.MONGO_URI,
+// });
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -26,7 +26,7 @@ app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
 
-mongoose.connect(mongo_uri, {
+mongoose.connect(process.env.MONGO_URI, {
   useUnifiedTopology: true,
 });
 
