@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "file.env" });
+// require("dotenv").config({ path: "file.env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const dns = require("dns");
@@ -6,6 +6,11 @@ var bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
 
+const aws = require("aws-sdk");
+
+let db_uri = new aws.S3({
+  mongo_uri: process.env.MONGO_URI,
+});
 // Basic Configuration
 const port = process.env.PORT || 3000;
 
@@ -21,7 +26,7 @@ app.listen(port, function () {
   console.log(`Listening on port ${port}`);
 });
 
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(mongo_uri, {
   useUnifiedTopology: true,
 });
 
